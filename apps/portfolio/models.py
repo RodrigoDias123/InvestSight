@@ -13,21 +13,28 @@ class Portfolio(models.Model):
 
     @property
     def total_invested(self) -> Decimal:
-        from django.db.models import Sum
+        from django.db.models import DecimalField, ExpressionWrapper, F, Sum
 
-        result = self.holdings.aggregate(total=Sum("quantity") * Sum("avg_buy_price"))
+        result = self.holdings.aggregate(
+            total=Sum(
+                ExpressionWrapper(
+                    F("quantity") * F("avg_buy_price"),
+                    output_field=DecimalField(),
+                )
+            )
+        )
         total = result["total"]
         if total is None:
             return Decimal("0")
         return total
 
     @property
-    def current_value(self) -> Optional[Decimal]:
+    def current_value(self) -> Decimal:
         total = Decimal("0")
         for holding in self.holdings.select_related("asset"):
             current = holding.current_value
             if current is None:
-                return None
+                continue
             total += current
         return total
 
