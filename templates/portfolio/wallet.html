@@ -6,9 +6,11 @@
 <div class="container">
     <h1>My Wallet</h1>
     
+    {% if not seed_phrase.is_downloaded %}
     <div class="wallet-actions" style="position: fixed; bottom: 24px; right: 24px;">
         <button onclick="downloadSeedPhrase()" class="btn-download">⬇ Download Seed Phrase</button>
     </div>
+    {% endif %}
 </div>
 
 <style>
@@ -32,7 +34,7 @@
 
 <script>
 function downloadSeedPhrase() {
-    const phrase = "{{ seed_phrase.phrase|escapejs }}";
+    const phrase = "{{ seed_phrase.get_phrase|escapejs }}";
     const blob = new Blob([phrase], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -42,6 +44,17 @@ function downloadSeedPhrase() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    
+    fetch("{% url 'portfolio:wallet' %}", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({"action": "mark_downloaded"})
+    });
+    
+    location.reload();
 }
 </script>
 {% endblock %}

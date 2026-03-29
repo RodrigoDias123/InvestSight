@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
@@ -46,4 +47,14 @@ def wallet(request):
     seed_phrase = getattr(request.user, "seed_phrase", None)
     if not seed_phrase:
         seed_phrase = SeedPhrase.objects.create(user=request.user)
+
+    if request.method == "POST":
+        import json
+
+        data = json.loads(request.body)
+        if data.get("action") == "mark_downloaded":
+            seed_phrase.is_downloaded = True
+            seed_phrase.save()
+            return JsonResponse({"status": "ok"})
+
     return render(request, "portfolio/wallet.html", {"seed_phrase": seed_phrase})

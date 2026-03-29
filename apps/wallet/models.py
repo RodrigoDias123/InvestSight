@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 
 from apps.apis.services.unified import get_price
 
-
+# Model for storing the seed phrase associated with a user
 WORDLIST = [
     "abandon",
     "ability",
@@ -2074,42 +2074,46 @@ WORDLIST = [
 ]
 
 
+# Generate a random seed phrase of 12 words from the WORDLIST
 def generate_seed_phrase() -> str:
     words = [secrets.choice(WORDLIST) for _ in range(12)]
     return " ".join(words)
 
 
+# Model of the seed phrase associated with a user.Once generated, the seed phrase is not stored in the database for security reasons. Instead, it can be generated on demand using the get_phrase method.
 class SeedPhrase(models.Model):
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="seed_phrase"
     )
-    phrase = models.CharField(max_length=500)
+    is_downloaded = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def save(self, *args, **kwargs):
-        if not self.phrase:
-            self.phrase = generate_seed_phrase()
-        super().save(*args, **kwargs)
+    def get_phrase(self):
+        return generate_seed_phrase()
 
     def __str__(self):
         return f"SeedPhrase for {self.user.username}"
 
 
+# Models for Assets and Holdings
 class AssetType(models.TextChoices):
     CRYPTO = "crypto", "Cryptocurrency"
     STOCK = "stock", "Stock"
 
 
+# Model representing a financial asset, such as a cryptocurrency or stock
 class Asset(models.Model):
     symbol = models.CharField(max_length=20, unique=True)
     name = models.CharField(max_length=200)
     asset_type = models.CharField(max_length=20, choices=AssetType.choices)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    # Override the save method to ensure the symbol is always stored in uppercase
     def save(self, *args, **kwargs):
         self.symbol = self.symbol.upper()
         super().save(*args, **kwargs)
 
+    # Property to get the current price of the asset using the get_price function
     @property
     def current_price(self) -> Optional[Decimal]:
         result = get_price(self.symbol)
@@ -2121,6 +2125,7 @@ class Asset(models.Model):
         return f"{self.symbol} ({self.name})"
 
 
+# Model representing a holding of a specific asset within a portfolio, including quantity and average buy price
 class Holding(models.Model):
     portfolio = models.ForeignKey(
         "portfolio.Portfolio", on_delete=models.CASCADE, related_name="holdings"
