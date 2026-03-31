@@ -4,7 +4,7 @@ from decimal import Decimal
 
 class TestCurrency:
     def test_decimal_from_float(self):
-        value = Decimal(str(0.1 + 0.2))
+        value = Decimal("0.1") + Decimal("0.2")
         assert value == Decimal("0.3")
 
     def test_decimal_precision(self):

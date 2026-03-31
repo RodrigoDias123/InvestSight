@@ -23,6 +23,7 @@ dependencies = [
     "pytest-mock>=3.12",
     "responses>=0.25",
     "model-bakery>=1.18",
+    "pytest-cov>=7.1.0",
 ]
 
 [tool.pytest.ini_options]

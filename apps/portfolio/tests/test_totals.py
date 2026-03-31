@@ -13,9 +13,7 @@ class TestPortfolioTotals:
         user = User(username="test", email="test@test.com")
         portfolio = Portfolio(name="Test", user=user)
 
-        mock_qs = MagicMock()
-        mock_qs.aggregate.return_value = {"total": Decimal("100000.00")}
-        mock_holdings.return_value = mock_qs
+        mock_holdings.aggregate.return_value = {"total": Decimal("100000.00")}
 
         assert portfolio.total_invested == Decimal("100000.00")
 
@@ -26,9 +24,7 @@ class TestPortfolioTotals:
         user = User(username="test", email="test@test.com")
         portfolio = Portfolio(name="Test", user=user)
 
-        mock_qs = MagicMock()
-        mock_qs.aggregate.return_value = {"total": None}
-        mock_holdings.return_value = mock_qs
+        mock_holdings.aggregate.return_value = {"total": None}
 
         assert portfolio.total_invested == Decimal("0")
 
@@ -39,8 +35,6 @@ class TestPortfolioTotals:
         user = User(username="test", email="test@test.com")
         portfolio = Portfolio(name="Test", user=user)
 
-        mock_qs = MagicMock()
-        mock_qs.select_related.return_value = []
-        mock_holdings.return_value = mock_qs
+        mock_holdings.select_related.return_value = []
 
         assert portfolio.current_value == Decimal("0")

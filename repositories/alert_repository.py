@@ -8,7 +8,8 @@ from apps.portfolio.models import Alert
 
 
 class AlertRepository:
-    def get_active(self, portfolio_id: int) -> QuerySet[Alert]:
+    @staticmethod
+    def get_active(portfolio_id: int) -> QuerySet[Alert]:
         return Alert.objects.filter(
             portfolio_id=portfolio_id, active=True, triggered=False
         ).select_related("asset")
