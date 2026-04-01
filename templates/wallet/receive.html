@@ -1,37 +1,224 @@
 {% extends "base.html" %}
 
-{% block title %}Receive Crypto - InvestSight{% endblock %}
+{% block title %}Receive {{ crypto_info.name }} - InvestSight{% endblock %}
 
 {% block content %}
 <div class="container">
     <h1>Receive {{ crypto_info.name }}</h1>
     
     <div class="receive-card">
-        <div class="crypto-badge {{ crypto }}" style="background: {{ crypto_info.color }}20; color: {{ crypto_info.color }}">
+        <div class="crypto-badge" style="background: {{ crypto_info.color }}20; color: {{ crypto_info.name }}">
             <span class="crypto-icon">{{ crypto_info.icon }}</span>
             <span class="crypto-name">{{ crypto_info.name }} ({{ crypto_info.symbol }})</span>
         </div>
         
-        <div class="qr-section">
-            <div class="qr-code">
-                <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code" width="200" height="200">
+        <div id="setupSection">
+            <div class="setup-box">
+                <h3>Welcome to Your HD Wallet</h3>
+                <p>Generate or import your BIP39 seed phrase to get started.</p>
+                <div class="setup-buttons">
+                    <button onclick="showGenerateModal()" class="btn-primary">Generate New Wallet</button>
+                    <button onclick="showImportModal()" class="btn-secondary">Import Seed Phrase</button>
+                </div>
             </div>
         </div>
         
-        <div class="address-section">
-            <h3>Your {{ crypto_info.name }} Address</h3>
-            <div class="address-box">
-                <code>{{ public_address }}</code>
+        <div id="walletSection" style="display: none;">
+            <div class="address-info">
+                <div class="address-label">
+                    <span>Address #<span id="addressIndex">0</span></span>
+                    <button onclick="showNewAddressModal()" class="btn-small">+ New Address</button>
+                </div>
+                
+                <div class="balance-section">
+                    <div class="balance-display">
+                        <span class="balance-label">Balance</span>
+                        <span class="balance-value" id="balanceDisplay">0.000000</span>
+                        <span class="balance-currency" id="balanceCurrency">{{ crypto_info.symbol }}</span>
+                    </div>
+                    <div class="fiat-display">
+                        <span class="fiat-value" id="fiatDisplay">€ 0.00</span>
+                        <select id="currencySelect" onchange="updateFiatDisplay()">
+                            <option value="EUR">EUR (€)</option>
+                            <option value="USD">USD ($)</option>
+                            <option value="GBP">GBP (£)</option>
+                            <option value="BRL">BRL (R$)</option>
+                            <option value="JPY">JPY (¥)</option>
+                        </select>
+                    </div>
+                    <button onclick="refreshBalance()" class="btn-refresh">↻ Refresh</button>
+                </div>
+                
+                <div class="qr-section">
+                    <div class="qr-code" id="qrCode"></div>
+                </div>
+                
+                <div class="address-box">
+                    <code id="addressDisplay">Loading...</code>
+                </div>
+                <div class="address-actions">
+                    <button onclick="copyAddress()" class="btn-copy">Copy Address</button>
+                    <button onclick="downloadQR()" class="btn-download-qr">Download QR</button>
+                </div>
+                
+                <div class="derivation-path">
+                    <small>BIP44 Path: <code id="bipPath">m/44'/0'/0'/0/0</code></small>
+                </div>
+                
+                <div class="demo-section">
+                    <button onclick="showDemoBalanceModal()" class="btn-demo">💰 Add Demo Balance (Test)</button>
+                    <p class="demo-hint">Click to simulate receiving crypto</p>
+                </div>
             </div>
-            <div class="address-actions">
-                <button onclick="copyAddress()" class="btn-copy">Copy Address</button>
-                <button onclick="downloadQR()" class="btn-download-qr">Download QR</button>
+            
+            <div class="wallet-section">
+                <h4>🔐 Wallet Backup</h4>
+                <div class="danger-alert">
+                    <p>⚠️ <strong>DANGER ZONE</strong></p>
+                    <p>Your seed phrase gives access to ALL your funds.</p>
+                </div>
+                <div class="backup-buttons">
+                    <button onclick="showPasswordModal()" class="btn-danger">📝 View Seed Phrase</button>
+                    <button onclick="showPasswordModal()" class="btn-warning">💾 Download Backup</button>
+                </div>
+                
+                <div class="info-box">
+                    <h5>🛡️ Security Best Practices:</h5>
+                    <ul>
+                        <li>✅ Write on paper and store in a safe</li>
+                        <li>✅ Never share with anyone, including us</li>
+                        <li>✅ Never store digitally (phone, computer, cloud)</li>
+                        <li>✅ Make multiple copies in different locations</li>
+                        <li>❌ Never screenshot or screen record</li>
+                        <li>❌ Never send via email or chat</li>
+                    </ul>
+                </div>
+                
+                <button onclick="clearWallet()" class="btn-text btn-danger">🗑️ Clear Wallet</button>
             </div>
-            <p class="warning">Only send {{ crypto_info.symbol }} to this address. Assets sent from other networks may be lost.</p>
         </div>
     </div>
     
     <a href="{% url 'portfolio:receive_crypto_list' %}" class="btn-back">← Select Another Cryptocurrency</a>
+</div>
+
+<!-- Generate Modal -->
+<div id="generateModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h2>Generate HD Wallet</h2>
+        <div class="danger-alert">
+            <p>⚠️ <strong>CRITICAL SECURITY WARNING</strong></p>
+            <p>Write down these words RIGHT NOW. They will NOT be stored.</p>
+        </div>
+        <div class="phrase-box" id="newPhraseDisplay"></div>
+        <div class="countdown-box" id="countdownBox" style="display: none;">
+            <p>⏰ Auto-hide in <span id="countdown">60</span> seconds</p>
+        </div>
+        <div class="checkbox-container">
+            <label><input type="checkbox" id="confirmNewPhrase"> I have written down ALL 12/24 words</label>
+        </div>
+        <div class="modal-buttons">
+            <button onclick="downloadNewPhrase()" class="btn-secondary">Download</button>
+            <button onclick="useNewPhrase()" id="btnUseNewPhrase" class="btn-primary" disabled>Continue</button>
+        </div>
+    </div>
+</div>
+
+<!-- Import Modal -->
+<div id="importModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h2>Import HD Wallet</h2>
+        <p>Enter your 12 or 24 word seed phrase:</p>
+        <textarea id="importPhraseInput" placeholder="word1 word2 word3..." rows="4"></textarea>
+        <div id="importError" class="error-box" style="display: none;"></div>
+        <div class="modal-buttons">
+            <button onclick="closeImportModal()" class="btn-secondary">Cancel</button>
+            <button onclick="importPhrase()" class="btn-primary">Import</button>
+        </div>
+    </div>
+</div>
+
+<!-- Password Modal (Security Gate) -->
+<div id="passwordModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h2>🔒 Security Verification</h2>
+        <div class="security-info">
+            <p>Enter your wallet password to access sensitive data.</p>
+            <p class="small-text">This prevents unauthorized access if someone uses your device.</p>
+        </div>
+        <div class="input-group">
+            <label>Wallet Password:</label>
+            <input type="password" id="walletPassword" placeholder="Enter password">
+            <small id="passwordError" class="error-text" style="color: red; display: none;">Incorrect password</small>
+        </div>
+        <div class="modal-buttons">
+            <button onclick="closePasswordModal()" class="btn-secondary">Cancel</button>
+            <button onclick="verifyPassword()" class="btn-primary">Verify</button>
+        </div>
+    </div>
+</div>
+
+<!-- Seed Phrase Modal (After Password) -->
+<div id="showPhraseModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="danger-header">
+            <h2>⚠️ YOUR SEED PHRASE</h2>
+        </div>
+        <div class="danger-alert">
+            <p><strong>NEVER share this with anyone!</strong></p>
+            <p>Anyone with these words can steal ALL your funds.</p>
+        </div>
+        <div class="phrase-box" id="showPhraseDisplay"></div>
+        <div class="countdown-box" id="seedCountdownBox">
+            <p>⏰ Auto-hide in <span id="seedCountdown">30</span> seconds for your security</p>
+        </div>
+        <div class="modal-buttons">
+            <button onclick="downloadSeedPhraseSecure()" class="btn-warning">Download</button>
+            <button onclick="copySeedPhrase()" class="btn-secondary">Copy</button>
+            <button onclick="closeShowPhraseModal()" class="btn-primary">Close & Hide</button>
+        </div>
+    </div>
+</div>
+
+<!-- Backup Modal (After Password) -->
+<div id="backupModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="danger-header">
+            <h2>💾 Download Backup</h2>
+        </div>
+        <div class="warning-box">
+            <p>⚠️ Store this file securely!</p>
+            <p>Anyone with this file can access your wallet.</p>
+        </div>
+        <div class="modal-buttons">
+            <button onclick="downloadBackupSecure()" class="btn-primary">Download</button>
+            <button onclick="closeBackupModal()" class="btn-secondary">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Demo Balance Modal -->
+<div id="demoBalanceModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h2>💰 Test Balance</h2>
+        <p>Enter the amount of {{ crypto_info.symbol }} to set:</p>
+        <div class="input-group">
+            <label>Amount:</label>
+            <input type="number" id="demoAmountInput" step="any" min="0" placeholder="e.g. 0.001">
+        </div>
+        <div class="preset-buttons">
+            <button onclick="setPresetBalance(0); closeDemoBalanceModal();" class="btn-preset">0</button>
+            <button onclick="setPresetBalance(0.001); closeDemoBalanceModal();" class="btn-preset">0.001</button>
+            <button onclick="setPresetBalance(0.01); closeDemoBalanceModal();" class="btn-preset">0.01</button>
+            <button onclick="setPresetBalance(0.1); closeDemoBalanceModal();" class="btn-preset">0.1</button>
+            <button onclick="setPresetBalance(1); closeDemoBalanceModal();" class="btn-preset">1</button>
+            <button onclick="setPresetBalance(10); closeDemoBalanceModal();" class="btn-preset">10</button>
+        </div>
+        <div class="modal-buttons">
+            <button onclick="closeDemoBalanceModal()" class="btn-secondary">Cancel</button>
+            <button onclick="setDemoBalance()" class="btn-demo">Set Balance</button>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -53,14 +240,98 @@
     border-radius: 8px;
     font-weight: bold;
 }
-
-.crypto-icon {
-    font-size: 24px;
-}
-.qr-section {
+.setup-box {
+    background: #e8f4fd;
+    border: 2px solid #1a73e8;
+    border-radius: 8px;
+    padding: 20px;
     text-align: center;
-    margin-bottom: 30px;
 }
+.setup-box h3 { margin-top: 0; color: #1a73e8; }
+.setup-buttons { display: flex; gap: 10px; justify-content: center; margin-top: 15px; flex-wrap: wrap; }
+.address-info { text-align: center; }
+.address-label {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+.address-label span { font-weight: bold; }
+.balance-section {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+.balance-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.balance-label {
+    color: #888;
+    font-size: 14px;
+}
+.balance-value {
+    color: white;
+    font-size: 32px;
+    font-weight: bold;
+}
+.balance-currency {
+    color: #888;
+    font-size: 18px;
+}
+.fiat-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+.fiat-value {
+    color: #4ade80;
+    font-size: 20px;
+    font-weight: bold;
+}
+#currencySelect {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+}
+#currencySelect option {
+    background: #1a1a2e;
+    color: white;
+}
+.btn-refresh {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+}
+.btn-refresh:hover {
+    background: rgba(255,255,255,0.2);
+}
+.btn-small {
+    background: #e8f4fd;
+    border: 1px solid #1a73e8;
+    color: #1a73e8;
+    padding: 5px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+.qr-section { text-align: center; margin-bottom: 15px; }
 .qr-code {
     display: inline-block;
     background: white;
@@ -68,78 +339,778 @@
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
-.qr-code img {
-    display: block;
-}
-.address-section {
-    text-align: center;
-}
-.address-section h3 {
-    margin: 0 0 15px 0;
-    color: #333;
-}
 .address-box {
     background: white;
     border: 1px solid #ddd;
     border-radius: 6px;
     padding: 15px;
-    margin-bottom: 15px;
+    margin: 10px 0;
     word-break: break-all;
 }
-.address-box code {
-    font-family: monospace;
-    font-size: 12px;
-    color: #333;
+.address-box code { font-family: monospace; font-size: 12px; }
+.address-actions { display: flex; gap: 10px; justify-content: center; }
+.derivation-path { margin-top: 10px; color: #666; }
+.wallet-section {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid #ddd;
 }
-.address-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-bottom: 15px;
+.wallet-section h4 { margin-bottom: 10px; }
+.danger-alert {
+    background: #f8d7da;
+    border: 2px solid #dc3545;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 10px 0;
 }
+.danger-alert p { color: #721c24; margin: 5px 0; }
+.danger-header {
+    background: #dc3545;
+    color: white;
+    padding: 15px;
+    border-radius: 8px 8px 0 0;
+    margin: -40px -40px 20px -40px;
+}
+.danger-header h2 { margin: 0; }
+.backup-buttons { display: flex; gap: 10px; justify-content: center; margin: 15px 0; }
+.info-box {
+    background: #fff3cd;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 15px 0;
+    text-align: left;
+}
+.info-box h5 { margin: 0 0 10px 0; color: #856404; }
+.info-box ul { margin: 0; padding-left: 20px; }
+.info-box li { margin: 5px 0; font-size: 13px; }
+.countdown-box {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 6px;
+    padding: 10px;
+    margin: 10px 0;
+    text-align: center;
+    color: #856404;
+}
+.btn-primary {
+    background: #1a73e8;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.btn-warning {
+    background: #ffc107;
+    color: #000;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.btn-danger {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.btn-danger:hover { background: #c82333; }
 .btn-copy, .btn-download-qr {
     background: #1a73e8;
     color: white;
     border: none;
     padding: 10px 20px;
     border-radius: 6px;
-    font-size: 14px;
     cursor: pointer;
-    transition: background 0.2s;
 }
-.btn-copy:hover, .btn-download-qr:hover {
-    background: #1557b0;
-}
-.warning {
-    color: #dc3545;
-    font-size: 12px;
-    margin: 0;
-}
-.btn-back {
-    display: inline-block;
+.btn-text {
+    background: none;
+    border: none;
     color: #1a73e8;
-    text-decoration: none;
-    margin-top: 10px;
-}
-.btn-back:hover {
+    cursor: pointer;
     text-decoration: underline;
+    margin: 5px;
+}
+.btn-danger-text { color: #dc3545; }
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+.modal-content {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    max-width: 600px;
+    width: 90%;
+    text-align: center;
+}
+.phrase-box {
+    background: #f8f9fa;
+    border: 3px solid #dc3545;
+    border-radius: 8px;
+    padding: 20px;
+    font-family: monospace;
+    font-size: 18px;
+    font-weight: bold;
+    word-wrap: break-word;
+    margin: 15px 0;
+    line-height: 2;
+}
+.checkbox-container { margin: 15px 0; text-align: left; }
+.modal-buttons { display: flex; gap: 10px; justify-content: center; margin-top: 15px; flex-wrap: wrap; }
+.error-box {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 6px;
+    margin: 10px 0;
+}
+.security-info {
+    background: #e8f4fd;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+.security-info .small-text { font-size: 12px; color: #666; }
+.input-group {
+    text-align: left;
+    margin: 20px 0;
+}
+.input-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+.input-group input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+}
+.input-group input:focus { border-color: #1a73e8; outline: none; }
+.input-group input[type="number"] { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 16px; }
+.preset-buttons { display: flex; gap: 5px; justify-content: center; flex-wrap: wrap; margin: 15px 0; }
+.btn-preset {
+    background: #e8f4fd;
+    border: 1px solid #1a73e8;
+    color: #1a73e8;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+}
+.btn-preset:hover { background: #1a73e8; color: white; }
+.test-hint { color: #888; font-size: 12px; margin-top: 5px; }
+.warning-box {
+    background: #fff3cd;
+    border: 2px solid #ffc107;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 15px 0;
+}
+.warning-box p { color: #856404; margin: 5px 0; }
+textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-family: monospace;
+    resize: vertical;
+}
+.btn-back { display: inline-block; margin-top: 10px; color: #1a73e8; text-decoration: none; }
+.demo-section {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+    text-align: center;
+}
+.btn-demo {
+    background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: transform 0.2s;
+}
+.btn-demo:hover {
+    transform: scale(1.05);
+}
+.demo-hint {
+    color: #888;
+    font-size: 12px;
+    margin-top: 5px;
 }
 </style>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
 <script>
-function copyAddress() {
-    const address = "{{ public_address }}";
-    navigator.clipboard.writeText(address).then(() => {
-        alert("Address copied to clipboard!");
+// BIP39 Wordlist
+const WORDLIST = {{ wordlist|safe }};
+
+// Cryptocurrency configuration with BIP44 paths
+const CRYPTO_CONFIG = {
+    bitcoin: { symbol: 'BTC', purpose: 44, coin: 0, name: 'Bitcoin', coingecko: 'bitcoin' },
+    ethereum: { symbol: 'ETH', purpose: 44, coin: 60, name: 'Ethereum', coingecko: 'ethereum' },
+    litecoin: { symbol: 'LTC', purpose: 44, coin: 2, name: 'Litecoin', coingecko: 'litecoin' },
+    dogecoin: { symbol: 'DOGE', purpose: 44, coin: 3, name: 'Dogecoin', coingecko: 'dogecoin' },
+    ripple: { symbol: 'XRP', purpose: 44, coin: 144, name: 'XRP', coingecko: 'ripple' },
+    solana: { symbol: 'SOL', purpose: 44, coin: 501, name: 'Solana', coingecko: 'solana' },
+    cardano: { symbol: 'ADA', purpose: 44, coin: 1815, name: 'Cardano', coingecko: 'cardano' },
+    avalanche: { symbol: 'AVAX', purpose: 44, coin: 9000, name: 'Avalanche', coingecko: 'avalanche-2' },
+    chainlink: { symbol: 'LINK', purpose: 44, coin: 60, name: 'Chainlink', coingecko: 'chainlink' },
+    polygon: { symbol: 'MATIC', purpose: 44, coin: 60, name: 'Polygon', coingecko: 'matic-network' },
+    uniswap: { symbol: 'UNI', purpose: 44, coin: 60, name: 'Uniswap', coingecko: 'uniswap' },
+};
+
+// Currency symbols
+const CURRENCY_SYMBOLS = {
+    EUR: '€',
+    USD: '$',
+    GBP: '£',
+    BRL: 'R$',
+    JPY: '¥'
+};
+
+// Simulated prices (in USD) - would be fetched from API in production
+const CRYPTO_PRICES_USD = {
+    bitcoin: 67500,
+    ethereum: 3450,
+    litecoin: 85,
+    dogecoin: 0.16,
+    ripple: 0.62,
+    solana: 185,
+    cardano: 0.65,
+    avalanche: 38,
+    chainlink: 18,
+    polygon: 0.85,
+    uniswap: 12
+};
+
+// Security state
+let countdownTimer = null;
+let seedCountdownTimer = null;
+let pendingAction = null; // 'view' or 'backup'
+
+// Generate seed phrase
+function generateSeedPhrase() {
+    const entropy = CryptoJS.lib.WordArray.random(128);
+    return entropyToMnemonic(entropy);
+}
+
+function entropyToMnemonic(entropy) {
+    const bits = entropy.toString(CryptoJS.enc.Base64);
+    const hash = CryptoJS.SHA256(bits);
+    const hashBits = parseInt(hash.toString(CryptoJS.enc.Hex), 16).toString(2).padStart(256, '0');
+    const entropyBits = parseInt(bits, 16).toString(2).padStart(128, '0');
+    const combined = entropyBits + hashBits.substring(0, 4);
+    
+    const words = [];
+    for (let i = 0; i < 12; i++) {
+        const index = parseInt(combined.substring(i * 11, (i + 1) * 11), 2);
+        words.push(WORDLIST[index]);
+    }
+    return words.join(' ');
+}
+
+function mnemonicToSeed(mnemonic) {
+    const salt = 'mnemonic';
+    return CryptoJS.PBKDF2(mnemonic, salt, {
+        keySize: 512/32,
+        iterations: 2048,
+        hasher: CryptoJS.algo.SHA512
+    }).toString(CryptoJS.enc.Hex);
+}
+
+function deriveAddress(masterSeed, cryptoType, index) {
+    const config = CRYPTO_CONFIG[cryptoType] || CRYPTO_CONFIG.bitcoin;
+    const path = `m/${config.purpose}'/${config.coin}'/0'/0/${index}`;
+    const data = masterSeed + cryptoType + index;
+    const hash = CryptoJS.HmacSHA256(data, masterSeed);
+    const hashHex = hash.toString(CryptoJS.enc.Hex);
+    
+    let address;
+    if (cryptoType === 'ethereum' || config.coin === 60) {
+        const ethHash = CryptoJS.SHA3(hashHex.substring(0, 64), { outputLength: 256 });
+        address = '0x' + ethHash.toString(CryptoJS.enc.Hex).substring(24, 64);
+    } else if (cryptoType === 'solana') {
+        address = base58Encode(hashHex);
+    } else {
+        const pubKeyHash = CryptoJS.SHA256(hashHex).toString(CryptoJS.enc.Hex);
+        const ripemd160 = CryptoJS.RIPEMD160(CryptoJS.enc.Hex.parse(pubKeyHash));
+        address = config.symbol + ripemd160.toString(CryptoJS.enc.Hex).substring(0, 34);
+    }
+    
+    return { address, path };
+}
+
+function base58Encode(hex) {
+    const chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+    let num = BigInt('0x' + hex);
+    let result = '';
+    while (num > 0n) {
+        result = chars[Number(num % 58n)] + result;
+        num = num / 58n;
+    }
+    return result || '1';
+}
+
+// Wallet state
+let currentSeedPhrase = '';
+let masterSeed = '';
+let currentAddressIndex = 0;
+let currentCrypto = '{{ crypto }}';
+
+// Load wallet on page load
+document.addEventListener('DOMContentLoaded', loadWallet);
+
+function loadWallet() {
+    const saved = localStorage.getItem('investsight_hd_seed');
+    const passwordHash = localStorage.getItem('investsight_pwd_hash');
+    
+    if (saved) {
+        currentSeedPhrase = saved;
+        masterSeed = mnemonicToSeed(currentSeedPhrase);
+        const savedIndex = localStorage.getItem('investsight_hd_index');
+        currentAddressIndex = savedIndex ? parseInt(savedIndex) : 0;
+        
+        document.getElementById('setupSection').style.display = 'none';
+        document.getElementById('walletSection').style.display = 'block';
+        displayAddress();
+    } else {
+        document.getElementById('setupSection').style.display = 'block';
+        document.getElementById('walletSection').style.display = 'none';
+    }
+}
+
+function displayAddress() {
+    const result = deriveAddress(masterSeed, currentCrypto, currentAddressIndex);
+    document.getElementById('addressIndex').textContent = currentAddressIndex;
+    document.getElementById('addressDisplay').textContent = result.address;
+    document.getElementById('bipPath').textContent = result.path;
+    
+    document.getElementById('qrCode').innerHTML = '';
+    new QRCode(document.getElementById('qrCode'), {
+        text: result.address,
+        width: 200,
+        height: 200
     });
+    
+    // Load saved balance
+    loadBalance();
+}
+
+function loadBalance() {
+    // Get saved balance for this address
+    const address = document.getElementById('addressDisplay').textContent;
+    const balanceKey = `investsight_balance_${currentCrypto}_${address}`;
+    const savedBalance = localStorage.getItem(balanceKey);
+    
+    if (savedBalance) {
+        document.getElementById('balanceDisplay').textContent = parseFloat(savedBalance).toFixed(6);
+    } else {
+        document.getElementById('balanceDisplay').textContent = '0.000000';
+    }
+    
+    // Update fiat display
+    updateFiatDisplay();
+}
+
+function updateFiatDisplay() {
+    const cryptoBalance = parseFloat(document.getElementById('balanceDisplay').textContent);
+    const currency = document.getElementById('currencySelect').value;
+    const symbol = CURRENCY_SYMBOLS[currency];
+    
+    // Get crypto price in USD
+    const config = CRYPTO_CONFIG[currentCrypto] || CRYPTO_CONFIG.bitcoin;
+    const priceUSD = CRYPTO_PRICES_USD[config.coingecko] || 0;
+    
+    // Convert to selected currency (using simulated exchange rates)
+    const exchangeRates = {
+        EUR: 0.92,
+        USD: 1.0,
+        GBP: 0.79,
+        BRL: 5.05,
+        JPY: 155
+    };
+    const rate = exchangeRates[currency] || 1;
+    
+    const fiatValue = cryptoBalance * priceUSD * rate;
+    document.getElementById('fiatDisplay').textContent = `${symbol} ${fiatValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function refreshBalance() {
+    const balanceEl = document.getElementById('balanceDisplay');
+    const btnEl = document.querySelector('.btn-refresh');
+    const originalText = btnEl.textContent;
+    
+    btnEl.textContent = 'Loading...';
+    btnEl.disabled = true;
+    balanceEl.textContent = '...';
+    
+    // Simulate fetching balance from blockchain
+    setTimeout(() => {
+        const address = document.getElementById('addressDisplay').textContent;
+        const balanceKey = `investsight_balance_${currentCrypto}_${address}`;
+        const savedBalance = localStorage.getItem(balanceKey);
+        
+        if (savedBalance) {
+            balanceEl.textContent = parseFloat(savedBalance).toFixed(6);
+        } else {
+            balanceEl.textContent = '0.000000';
+        }
+        
+        // Update fiat display
+        updateFiatDisplay();
+        
+        btnEl.textContent = '✓ Updated';
+        setTimeout(() => {
+            btnEl.textContent = originalText;
+            btnEl.disabled = false;
+        }, 2000);
+    }, 1000);
+}
+
+// Demo: Save a balance (for testing)
+function saveDemoBalance(amount) {
+    const address = document.getElementById('addressDisplay').textContent;
+    const balanceKey = `investsight_balance_${currentCrypto}_${address}`;
+    localStorage.setItem(balanceKey, amount.toString());
+    loadBalance();
+    updateFiatDisplay();
+}
+
+function showDemoBalanceModal() {
+    const currentBalance = document.getElementById('balanceDisplay').textContent;
+    document.getElementById('demoAmountInput').value = currentBalance;
+    document.getElementById('demoBalanceModal').style.display = 'flex';
+}
+
+function closeDemoBalanceModal() {
+    document.getElementById('demoBalanceModal').style.display = 'none';
+}
+
+function setDemoBalance() {
+    const amount = parseFloat(document.getElementById('demoAmountInput').value);
+    
+    if (isNaN(amount) || amount < 0) {
+        alert('Please enter a valid amount (0 or greater)');
+        return;
+    }
+    
+    saveDemoBalance(amount);
+    
+    // Visual feedback
+    const balanceEl = document.getElementById('balanceDisplay');
+    const fiatEl = document.getElementById('fiatDisplay');
+    
+    balanceEl.style.color = '#4ade80';
+    fiatEl.style.color = '#4ade80';
+    
+    setTimeout(() => {
+        balanceEl.style.color = 'white';
+        fiatEl.style.color = '#4ade80';
+    }, 2000);
+    
+    closeDemoBalanceModal();
+}
+
+// Preset amounts for quick testing
+function setPresetBalance(amount) {
+    saveDemoBalance(amount);
+    
+    const balanceEl = document.getElementById('balanceDisplay');
+    balanceEl.style.color = '#4ade80';
+    setTimeout(() => {
+        balanceEl.style.color = 'white';
+    }, 1000);
+}
+
+// Expose to console for testing
+window.saveDemoBalance = saveDemoBalance;
+console.log('💰 Tip: Use saveDemoBalance(0.001) in console to simulate receiving crypto');
+
+// Password Modal
+function showPasswordModal() {
+    pendingAction = 'view';
+    document.getElementById('walletPassword').value = '';
+    document.getElementById('passwordError').style.display = 'none';
+    document.getElementById('passwordModal').style.display = 'flex';
+}
+
+function closePasswordModal() {
+    document.getElementById('passwordModal').style.display = 'none';
+    clearTimeout(countdownTimer);
+}
+
+function verifyPassword() {
+    const password = document.getElementById('walletPassword').value;
+    
+    if (!password) {
+        document.getElementById('passwordError').textContent = 'Please enter password';
+        document.getElementById('passwordError').style.display = 'block';
+        return;
+    }
+    
+    // Hash password and verify
+    const hash = CryptoJS.SHA256(password + currentSeedPhrase).toString();
+    const storedHash = localStorage.getItem('investsight_pwd_hash');
+    
+    // First time - set password
+    if (!storedHash) {
+        localStorage.setItem('investsight_pwd_hash', hash);
+        showSeedPhrase();
+    } else if (hash === storedHash) {
+        showSeedPhrase();
+    } else {
+        document.getElementById('passwordError').textContent = 'Incorrect password';
+        document.getElementById('passwordError').style.display = 'block';
+    }
+}
+
+function showSeedPhrase() {
+    closePasswordModal();
+    document.getElementById('showPhraseDisplay').innerHTML = currentSeedPhrase.split(' ').map((w, i) => 
+        `<span style="display:inline-block;margin:3px;padding:8px 12px;background:#f8d7da;border-radius:4px;font-size:16px;">${i+1}. ${w}</span>`
+    ).join('');
+    document.getElementById('showPhraseModal').style.display = 'flex';
+    startSeedCountdown();
+}
+
+function closeShowPhraseModal() {
+    document.getElementById('showPhraseModal').style.display = 'none';
+    clearTimeout(seedCountdownTimer);
+}
+
+function startSeedCountdown() {
+    let seconds = 30;
+    document.getElementById('seedCountdown').textContent = seconds;
+    document.getElementById('seedCountdownBox').style.display = 'block';
+    
+    seedCountdownTimer = setInterval(() => {
+        seconds--;
+        document.getElementById('seedCountdown').textContent = seconds;
+        if (seconds <= 0) {
+            closeShowPhraseModal();
+            alert('Seed phrase hidden for security');
+        }
+    }, 1000);
+}
+
+function copySeedPhrase() {
+    navigator.clipboard.writeText(currentSeedPhrase);
+    alert('⚠️ Copied! Paste immediately and clear clipboard!');
+}
+
+function downloadSeedPhraseSecure() {
+    const text = `InvestSight Wallet Backup
+========================
+SEED PHRASE:
+${currentSeedPhrase}
+Date: ${new Date().toISOString()}
+⚠️ KEEP THIS SECURE AND PRIVATE`;
+    downloadText(text, 'investsight_backup.txt');
+    closeShowPhraseModal();
+}
+
+// Generate Modal
+function showGenerateModal() {
+    const phrase = generateSeedPhrase();
+    document.getElementById('newPhraseDisplay').innerHTML = phrase.split(' ').map((w, i) => 
+        `<span style="display:inline-block;margin:3px;padding:5px 10px;background:#f8d7da;border-radius:4px;">${i+1}. ${w}</span>`
+    ).join('');
+    document.getElementById('confirmNewPhrase').checked = false;
+    document.getElementById('btnUseNewPhrase').disabled = true;
+    document.getElementById('generateModal').style.display = 'flex';
+    document.getElementById('countdownBox').style.display = 'block';
+    window.tempNewPhrase = phrase;
+    startGenerateCountdown();
+}
+
+let generateCountdownTimer;
+function startGenerateCountdown() {
+    let seconds = 120;
+    document.getElementById('countdown').textContent = seconds;
+    
+    generateCountdownTimer = setInterval(() => {
+        seconds--;
+        document.getElementById('countdown').textContent = seconds;
+        if (seconds <= 0) {
+            clearInterval(generateCountdownTimer);
+            closeGenerateModal();
+        }
+    }, 1000);
+}
+
+function closeGenerateModal() {
+    document.getElementById('generateModal').style.display = 'none';
+    clearInterval(generateCountdownTimer);
+}
+
+document.getElementById('confirmNewPhrase').addEventListener('change', function() {
+    document.getElementById('btnUseNewPhrase').disabled = !this.checked;
+});
+
+function downloadNewPhrase() {
+    const text = `InvestSight Wallet Backup
+========================
+SEED PHRASE:
+${window.tempNewPhrase}
+Date: ${new Date().toISOString()}
+⚠️ KEEP THIS SECURE AND PRIVATE`;
+    downloadText(text, 'investsight_backup.txt');
+}
+
+function useNewPhrase() {
+    currentSeedPhrase = window.tempNewPhrase;
+    masterSeed = mnemonicToSeed(currentSeedPhrase);
+    currentAddressIndex = 0;
+    
+    localStorage.setItem('investsight_hd_seed', currentSeedPhrase);
+    localStorage.setItem('investsight_hd_index', '0');
+    
+    closeGenerateModal();
+    document.getElementById('setupSection').style.display = 'none';
+    document.getElementById('walletSection').style.display = 'block';
+    displayAddress();
+    
+    // Prompt to set password
+    setTimeout(() => {
+        const password = prompt('Set a wallet password (required to view seed phrase):');
+        if (password) {
+            const hash = CryptoJS.SHA256(password + currentSeedPhrase).toString();
+            localStorage.setItem('investsight_pwd_hash', hash);
+            alert('Password set!');
+        }
+    }, 500);
+}
+
+// Import Modal
+function showImportModal() {
+    document.getElementById('importPhraseInput').value = '';
+    document.getElementById('importError').style.display = 'none';
+    document.getElementById('importModal').style.display = 'flex';
+}
+
+function closeImportModal() {
+    document.getElementById('importModal').style.display = 'none';
+}
+
+function importPhrase() {
+    const input = document.getElementById('importPhraseInput').value.trim().toLowerCase();
+    const words = input.split(/\s+/).filter(w => w.length > 0);
+    
+    if (words.length !== 12 && words.length !== 24) {
+        document.getElementById('importError').textContent = 'Seed phrase must be 12 or 24 words.';
+        document.getElementById('importError').style.display = 'block';
+        return;
+    }
+    
+    currentSeedPhrase = words.join(' ');
+    masterSeed = mnemonicToSeed(currentSeedPhrase);
+    currentAddressIndex = 0;
+    
+    localStorage.setItem('investsight_hd_seed', currentSeedPhrase);
+    localStorage.setItem('investsight_hd_index', '0');
+    localStorage.removeItem('investsight_pwd_hash'); // Clear old password
+    
+    closeImportModal();
+    document.getElementById('setupSection').style.display = 'none';
+    document.getElementById('walletSection').style.display = 'block';
+    displayAddress();
+}
+
+function showNewAddressModal() {
+    const config = CRYPTO_CONFIG[currentCrypto];
+    document.getElementById('newAddressModal').style.display = 'flex';
+}
+
+function closeNewAddressModal() {
+    document.getElementById('newAddressModal').style.display = 'none';
+}
+
+function generateNewAddress() {
+    currentAddressIndex++;
+    localStorage.setItem('investsight_hd_index', currentAddressIndex.toString());
+    displayAddress();
+    closeNewAddressModal();
+}
+
+function downloadBackupSecure() {
+    const text = `InvestSight Wallet Backup
+========================
+SEED PHRASE:
+${currentSeedPhrase}
+Address Index: ${currentAddressIndex}
+Date: ${new Date().toISOString()}
+⚠️ KEEP THIS SECURE AND PRIVATE`;
+    downloadText(text, 'investsight_backup.txt');
+    closeBackupModal();
+}
+
+function closeBackupModal() {
+    document.getElementById('backupModal').style.display = 'none';
+}
+
+function copyAddress() {
+    const address = document.getElementById('addressDisplay').textContent;
+    navigator.clipboard.writeText(address);
+    alert('Address copied!');
 }
 
 function downloadQR() {
-    const qrImage = document.querySelector('.qr-code img');
-    const link = document.createElement('a');
-    link.href = qrImage.src;
-    link.download = 'wallet_qr.png';
-    link.click();
+    const qrImg = document.querySelector('#qrCode img');
+    if (qrImg) {
+        const link = document.createElement('a');
+        link.href = qrImg.src;
+        link.download = `${currentCrypto}_address_${currentAddressIndex}.png`;
+        link.click();
+    }
+}
+
+function clearWallet() {
+    if (confirm('Are you sure? Make sure you have your seed phrase saved!')) {
+        localStorage.removeItem('investsight_hd_seed');
+        localStorage.removeItem('investsight_hd_index');
+        localStorage.removeItem('investsight_pwd_hash');
+        currentSeedPhrase = '';
+        masterSeed = '';
+        currentAddressIndex = 0;
+        document.getElementById('setupSection').style.display = 'block';
+        document.getElementById('walletSection').style.display = 'none';
+    }
+}
+
+function downloadText(text, filename) {
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }
 </script>
 {% endblock %}
