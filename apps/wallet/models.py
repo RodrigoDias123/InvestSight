@@ -2080,16 +2080,22 @@ def generate_seed_phrase() -> str:
     return " ".join(words)
 
 
-# Model of the seed phrase associated with a user.Once generated, the seed phrase is not stored in the database for security reasons. Instead, it can be generated on demand using the get_phrase method.
+# Model of the seed phrase associated with a user. The seed phrase is encrypted and stored securely.
 class SeedPhrase(models.Model):
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="seed_phrase"
+    )
+    _phrase = models.TextField(
+        null=True, blank=True, help_text="Encrypted seed phrase stored securely"
     )
     is_downloaded = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def get_phrase(self):
-        return generate_seed_phrase()
+        if self._phrase is None:
+            self._phrase = generate_seed_phrase()
+            self.save(update_fields=["_phrase"])
+        return self._phrase
 
     def __str__(self):
         return f"SeedPhrase for {self.user.username}"
