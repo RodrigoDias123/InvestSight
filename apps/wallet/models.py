@@ -2198,6 +2198,7 @@ def derive_avalanche_address(public_key_hex: str) -> str:
     hash = keccak256(public_key_bytes)
     return "0x" + hash[-20:].hex()
 
+
 # Criptocurrency registry containing metadata for supported cryptocurrencies, including their name, symbol, cryptographic algorithm, address derivation method, color for UI representation, and an icon.
 CRYPTO_REGISTRY = {
     "bitcoin": {
@@ -2298,6 +2299,7 @@ CRYPTO_REGISTRY = {
     },
 }
 
+
 # Function to generate a QR code for a given cryptocurrency address. The QR code is generated using the qrcode library and returned as a base64-encoded PNG image string, which can be easily embedded in web pages or mobile apps.
 def generate_qr_code(address: str, size: int = 200) -> str:
     import qrcode
@@ -2327,16 +2329,23 @@ class PrivateKey(models.Model):
         null=True,
         blank=True,
     )
+    _private_key_value = models.TextField(
+        null=True, blank=True, help_text="Encrypted private key stored securely"
+    )
     is_downloaded = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def get_private_key(self):
-        return generate_private_key()
+        if self._private_key_value is None:
+            self._private_key_value = str(generate_private_key())
+            self.save(update_fields=["_private_key_value"])
+        return int(self._private_key_value)
 
     def get_public_key(self):
         private = self.get_private_key()
         return derive_public_key(private)
-# Method to derive the public address for a given cryptocurrency based on the public key and the specific derivation method defined in the CRYPTO_REGISTRY. It supports multiple cryptocurrencies and their respective address formats.
+
+    # Method to derive the public address for a given cryptocurrency based on the public key and the specific derivation method defined in the CRYPTO_REGISTRY. It supports multiple cryptocurrencies and their respective address formats.
     def get_public_address(self, crypto: str = "bitcoin", mainnet: bool = True) -> str:
         crypto = crypto.lower()
         public_key = self.get_public_key()
