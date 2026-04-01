@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Create Password - InvestSight{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="import-wallet-container">
+        <a href="{% url 'portfolio:import_step2' %}" class="back-link">← Back</a>
+        
+        <h1>Create Password</h1>
+        <p class="subtitle">Create a password to secure your wallet</p>
+        
+        {% if error %}
+        <div class="error-message">{{ error }}</div>
+        {% endif %}
+        
+        <form method="POST" action="{% url 'portfolio:import_step3' %}">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="form-input"
+                    placeholder="Enter password (min 8 characters)"
+                    minlength="8"
+                    required
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="confirm_password">Confirm Password</label>
+                <input 
+                    type="password" 
+                    id="confirm_password" 
+                    name="confirm_password" 
+                    class="form-input"
+                    placeholder="Confirm your password"
+                    required
+                >
+            </div>
+            
+            <div class="warning-box">
+                ⚠️ This password cannot be recovered. Make sure to remember it!
+            </div>
+            
+            <button type="submit" class="btn-primary">Continue</button>
+        </form>
+    </div>
+</div>
+
+<style>
+.import-wallet-container {
+    max-width: 500px;
+    margin: 40px auto;
+}
+.back-link {
+    color: #666;
+    text-decoration: none;
+    font-size: 14px;
+}
+.back-link:hover {
+    color: #1a73e8;
+}
+.subtitle {
+    color: #666;
+    margin: 20px 0 30px;
+}
+.form-group {
+    margin-bottom: 20px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+.form-input {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+.form-input:focus {
+    outline: none;
+    border-color: #1a73e8;
+}
+.warning-box {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 8px;
+    padding: 15px;
+    color: #856404;
+    font-size: 14px;
+}
+.btn-primary {
+    width: 100%;
+    padding: 15px;
+    background: #1a73e8;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 20px;
+}
+.btn-primary:hover {
+    background: #1557b0;
+}
+.error-message {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    padding: 15px;
+    color: #721c24;
+    margin-bottom: 20px;
+}
+</style>
+{% endblock %}

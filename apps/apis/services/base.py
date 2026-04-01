@@ -4,7 +4,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Optional
 
-
+#Model
 @dataclass
 class PriceResult:
     symbol: str
@@ -12,7 +12,6 @@ class PriceResult:
     currency: str
     provider: str
     timestamp: datetime
-
 
 class PriceService(ABC):
     @abstractmethod

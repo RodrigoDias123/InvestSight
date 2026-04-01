@@ -1,77 +1,82 @@
 import pytest
 from decimal import Decimal
-from unittest.mock import MagicMock
+from datetime import datetime
+from unittest.mock import patch, MagicMock
 
-from apps.wallet.models import Holding
+from apps.apis.services.base import PriceResult
+from apps.wallet.models import Holding, Asset, AssetType
+from apps.portfolio.models import Portfolio
 
 
 class TestPnL:
     @pytest.fixture
-    def mock_asset(self):
-        asset = MagicMock()
-        asset.symbol = "BTC"
-        asset.current_price = Decimal("67500.00")
-        return asset
+    def asset(self):
+        return Asset(symbol="BTC", name="Bitcoin", asset_type=AssetType.CRYPTO)
 
     @pytest.fixture
-    def mock_portfolio(self):
-        portfolio = MagicMock()
-        portfolio.id = 1
-        return portfolio
+    def portfolio(self):
+        return Portfolio(pk=1, name="TestPortfolio", user_id=1)
 
-    def test_profit_loss_gain(self, mock_asset, mock_portfolio):
+    @patch("apps.wallet.models.get_price")
+    def test_profit_loss_gain(self, mock_get_price, asset, portfolio):
+        mock_get_price.return_value = PriceResult(
+            symbol="BTC", price=Decimal("67500.00"), currency="USD",
+            provider="mock", timestamp=datetime.utcnow(),
+        )
         holding = Holding(
-            portfolio=mock_portfolio,
-            asset=mock_asset,
-            quantity=Decimal("1.0"),
-            avg_buy_price=Decimal("50000.00"),
+            portfolio=portfolio, asset=asset,
+            quantity=Decimal("1.0"), avg_buy_price=Decimal("50000.00"),
         )
         assert holding.profit_loss == Decimal("17500.00")
 
-    def test_profit_loss_loss(self, mock_asset, mock_portfolio):
-        mock_asset.current_price = Decimal("40000.00")
+    @patch("apps.wallet.models.get_price")
+    def test_profit_loss_loss(self, mock_get_price, asset, portfolio):
+        mock_get_price.return_value = PriceResult(
+            symbol="BTC", price=Decimal("40000.00"), currency="USD",
+            provider="mock", timestamp=datetime.utcnow(),
+        )
         holding = Holding(
-            portfolio=mock_portfolio,
-            asset=mock_asset,
-            quantity=Decimal("1.0"),
-            avg_buy_price=Decimal("50000.00"),
+            portfolio=portfolio, asset=asset,
+            quantity=Decimal("1.0"), avg_buy_price=Decimal("50000.00"),
         )
         assert holding.profit_loss == Decimal("-10000.00")
 
-    def test_profit_loss_breakeven(self, mock_asset, mock_portfolio):
-        mock_asset.current_price = Decimal("50000.00")
+    @patch("apps.wallet.models.get_price")
+    def test_profit_loss_breakeven(self, mock_get_price, asset, portfolio):
+        mock_get_price.return_value = PriceResult(
+            symbol="BTC", price=Decimal("50000.00"), currency="USD",
+            provider="mock", timestamp=datetime.utcnow(),
+        )
         holding = Holding(
-            portfolio=mock_portfolio,
-            asset=mock_asset,
-            quantity=Decimal("1.0"),
-            avg_buy_price=Decimal("50000.00"),
+            portfolio=portfolio, asset=asset,
+            quantity=Decimal("1.0"), avg_buy_price=Decimal("50000.00"),
         )
         assert holding.profit_loss == Decimal("0")
 
-    def test_pnl_pct_gain(self, mock_asset, mock_portfolio):
+    @patch("apps.wallet.models.get_price")
+    def test_pnl_pct_gain(self, mock_get_price, asset, portfolio):
+        mock_get_price.return_value = PriceResult(
+            symbol="BTC", price=Decimal("67500.00"), currency="USD",
+            provider="mock", timestamp=datetime.utcnow(),
+        )
         holding = Holding(
-            portfolio=mock_portfolio,
-            asset=mock_asset,
-            quantity=Decimal("1.0"),
-            avg_buy_price=Decimal("50000.00"),
+            portfolio=portfolio, asset=asset,
+            quantity=Decimal("1.0"), avg_buy_price=Decimal("50000.00"),
         )
         assert holding.pnl_pct == Decimal("35")
 
-    def test_pnl_pct_zero_cost(self, mock_asset, mock_portfolio):
+    def test_pnl_pct_zero_cost(self, asset, portfolio):
         holding = Holding(
-            portfolio=mock_portfolio,
-            asset=mock_asset,
-            quantity=Decimal("0"),
-            avg_buy_price=Decimal("0"),
+            portfolio=portfolio, asset=asset,
+            quantity=Decimal("0"), avg_buy_price=Decimal("0"),
         )
         assert holding.pnl_pct is None
 
-    def test_pnl_pct_none_when_current_value_none(self, mock_asset, mock_portfolio):
-        mock_asset.current_price = None
+    @patch("apps.wallet.models.get_price")
+    def test_pnl_pct_none_when_current_value_none(self, mock_get_price, asset, portfolio):
+        mock_get_price.return_value = None
         holding = Holding(
-            portfolio=mock_portfolio,
-            asset=mock_asset,
-            quantity=Decimal("1.0"),
-            avg_buy_price=Decimal("50000.00"),
+            portfolio=portfolio, asset=asset,
+            quantity=Decimal("1.0"), avg_buy_price=Decimal("50000.00"),
         )
         assert holding.pnl_pct is None

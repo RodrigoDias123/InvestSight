@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Import Wallet - InvestSight{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="import-wallet-container">
+        <h1>Import Wallet</h1>
+        <p class="subtitle">Restore your wallet using your seed phrase</p>
+        
+        <div class="wallet-options">
+            <a href="{% url 'portfolio:import_step2' %}" class="wallet-option">
+                <div class="option-icon">🔑</div>
+                <h2>Import with Seed Phrase</h2>
+                <p>Restore your wallet using 12 or 24 recovery words</p>
+            </a>
+            
+            <a href="{% url 'portfolio:wallet' %}" class="wallet-option">
+                <div class="option-icon">✨</div>
+                <h2>Create New Wallet</h2>
+                <p>Generate a new wallet with a new seed phrase</p>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.import-wallet-container {
+    max-width: 500px;
+    margin: 60px auto;
+    text-align: center;
+}
+.subtitle {
+    color: #666;
+    margin-bottom: 40px;
+}
+.wallet-options {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.wallet-option {
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    padding: 30px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s;
+}
+.wallet-option:hover {
+    border-color: #1a73e8;
+    transform: translateY(-2px);
+}
+.option-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+}
+.wallet-option h2 {
+    margin: 0 0 10px 0;
+    color: #333;
+}
+.wallet-option p {
+    margin: 0;
+    color: #666;
+}
+</style>
+{% endblock %}

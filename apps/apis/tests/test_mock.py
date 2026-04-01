@@ -4,6 +4,7 @@ from decimal import Decimal
 from apps.apis.services.mock import MockPriceService
 
 
+@pytest.mark.L1
 class TestMockPriceService:
     def test_get_price_btc(self):
         service = MockPriceService()

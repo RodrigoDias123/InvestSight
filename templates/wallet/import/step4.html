@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Wallet Restored - InvestSight{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="import-wallet-container">
+        <div class="success-icon">✓</div>
+        
+        <h1>Wallet Restored!</h1>
+        <p class="subtitle">Your wallet has been successfully imported</p>
+        
+        <div class="wallet-info">
+            <p><strong>Seed Phrase:</strong> {{ word_count }} words</p>
+        </div>
+        
+        <form method="POST" action="{% url 'portfolio:import_complete' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn-primary">Go to Wallet</button>
+        </form>
+        
+        <p class="security-note">
+            🔒 Your seed phrase is stored securely and never shared
+        </p>
+    </div>
+</div>
+
+<style>
+.import-wallet-container {
+    max-width: 500px;
+    margin: 60px auto;
+    text-align: center;
+}
+.success-icon {
+    width: 80px;
+    height: 80px;
+    background: #28a745;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    margin: 0 auto 30px;
+}
+.subtitle {
+    color: #666;
+    margin-bottom: 30px;
+}
+.wallet-info {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+.wallet-info p {
+    margin: 0;
+    color: #333;
+}
+.btn-primary {
+    width: 100%;
+    padding: 15px;
+    background: #1a73e8;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+}
+.btn-primary:hover {
+    background: #1557b0;
+}
+.security-note {
+    margin-top: 30px;
+    color: #666;
+    font-size: 14px;
+}
+</style>
+{% endblock %}

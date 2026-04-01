@@ -5,6 +5,7 @@ from apps.apis.services.retry import with_retry
 from apps.apis.exceptions import ProviderUnavailable
 
 
+@pytest.mark.L7
 class TestRetry:
     @patch("apps.apis.services.retry.RETRY_MAX_ATTEMPTS", 3)
     def test_retry_decorator(self):

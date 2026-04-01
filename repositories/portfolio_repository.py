@@ -7,8 +7,13 @@ from apps.wallet.models import Holding
 
 
 class PortfolioRepository:
-    def get_holdings(self, portfolio_id: int) -> QuerySet[Holding]:
-        return Holding.objects.filter(portfolio_id=portfolio_id).select_related("asset")
+    @staticmethod
+    def get_holdings(portfolio_id: int) -> QuerySet[Holding]:
+        return (
+            Holding.objects.filter(portfolio_id=portfolio_id)
+            .select_related("asset")
+            .prefetch_related()
+        )
 
     def get_by_user(self, user_id: int) -> QuerySet[Portfolio]:
         return Portfolio.objects.filter(user_id=user_id)

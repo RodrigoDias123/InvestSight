@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Receive Crypto - InvestSight{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Receive Cryptocurrency</h1>
+    <p class="subtitle">Select a cryptocurrency to receive deposits</p>
+    
+    <div class="crypto-grid">
+        {% for crypto_id, crypto in cryptos %}
+        <a href="{% url 'portfolio:receive_crypto' crypto_id %}" class="crypto-card" style="--crypto-color: {{ crypto.color }}">
+            <div class="crypto-icon" style="background: {{ crypto.color }}">
+                {{ crypto.icon }}
+            </div>
+            <div class="crypto-info">
+                <h3>{{ crypto.name }}</h3>
+                <span class="crypto-symbol">{{ crypto.symbol }}</span>
+            </div>
+            <div class="crypto-arrow">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    
+    <a href="{% url 'portfolio:wallet' %}" class="btn-back">← Back to Wallet</a>
+</div>
+
+<style>
+.subtitle {
+    color: #666;
+    margin-bottom: 30px;
+}
+.crypto-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 500px;
+}
+.crypto-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s;
+}
+.crypto-card:hover {
+    background: #fff;
+    border-color: var(--crypto-color);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateX(4px);
+}
+.crypto-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+}
+.crypto-info {
+    flex: 1;
+}
+.crypto-info h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+}
+.crypto-symbol {
+    font-size: 13px;
+    color: #888;
+}
+.crypto-arrow {
+    color: #ccc;
+}
+.btn-back {
+    display: inline-block;
+    margin-top: 30px;
+    color: #1a73e8;
+    text-decoration: none;
+}
+.btn-back:hover {
+    text-decoration: underline;
+}
+</style>
+{% endblock %}

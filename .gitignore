@@ -24,3 +24,7 @@ media/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Local agent notes
+agente1
+agente1.md

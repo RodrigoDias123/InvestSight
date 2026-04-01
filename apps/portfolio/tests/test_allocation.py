@@ -31,9 +31,7 @@ class TestAllocation:
         mock_holding.asset.symbol = "BTC"
         mock_holding.current_value = Decimal("100000.00")
 
-        mock_qs = MagicMock()
-        mock_qs.select_related.return_value = [mock_holding]
-        mock_holdings.return_value = mock_qs
+        mock_holdings.select_related.return_value = [mock_holding]
 
         allocation = portfolio.get_allocation()
         assert len(allocation) == 1

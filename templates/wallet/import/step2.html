@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Enter Seed Phrase - InvestSight{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="import-wallet-container">
+        <a href="{% url 'portfolio:import_step1' %}" class="back-link">← Back</a>
+        
+        <h1>Enter Your Seed Phrase</h1>
+        <p class="subtitle">Enter your 12 or 24 word recovery phrase</p>
+        
+        <form method="POST" action="{% url 'portfolio:import_step2' %}">
+            {% csrf_token %}
+            <textarea 
+                name="seed_phrase" 
+                class="seed-phrase-input" 
+                placeholder="word1 word2 word3..."
+                rows="4"
+                required
+            ></textarea>
+            <p class="hint">Separate words with spaces</p>
+            
+            <button type="submit" class="btn-primary">Continue</button>
+        </form>
+    </div>
+</div>
+
+<style>
+.import-wallet-container {
+    max-width: 500px;
+    margin: 40px auto;
+}
+.back-link {
+    color: #666;
+    text-decoration: none;
+    font-size: 14px;
+}
+.back-link:hover {
+    color: #1a73e8;
+}
+.subtitle {
+    color: #666;
+    margin: 20px 0 30px;
+}
+.seed-phrase-input {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    resize: vertical;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+.seed-phrase-input:focus {
+    outline: none;
+    border-color: #1a73e8;
+}
+.hint {
+    color: #999;
+    font-size: 12px;
+    margin-top: 8px;
+}
+.btn-primary {
+    width: 100%;
+    padding: 15px;
+    background: #1a73e8;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 20px;
+}
+.btn-primary:hover {
+    background: #1557b0;
+}
+</style>
+{% endblock %}

@@ -13,30 +13,61 @@ class Portfolio(models.Model):
 
     @property
     def total_invested(self) -> Decimal:
-        from django.db.models import Sum
+        from django.db.models import DecimalField, ExpressionWrapper, F, Sum
 
-        result = self.holdings.aggregate(total=Sum("quantity") * Sum("avg_buy_price"))
+        result = self.holdings.aggregate(
+            total=Sum(
+                ExpressionWrapper(
+                    F("quantity") * F("avg_buy_price"),
+                    output_field=DecimalField(),
+                )
+            )
+        )
         total = result["total"]
         if total is None:
             return Decimal("0")
         return total
 
     @property
-    def current_value(self) -> Optional[Decimal]:
+    def current_value(self) -> Decimal:
         total = Decimal("0")
         for holding in self.holdings.select_related("asset"):
             current = holding.current_value
             if current is None:
-                return None
+                continue
             total += current
         return total
 
     @property
-    def total_pnl(self) -> Optional[Decimal]:
+    def total_pnl(self) -> dict:
+        invested = self.total_invested
         current = self.current_value
-        if current is None:
-            return None
-        return current - self.total_invested
+        absolute = current - invested
+        if invested == 0:
+            percentage = Decimal("0")
+        else:
+            percentage = (absolute / invested) * 100
+        return {"absolute": absolute, "percentage": percentage}
+
+    @property
+    def allocation_breakdown(self) -> list[dict]:
+        current = self.current_value
+        if current == 0:
+            return []
+
+        breakdown = []
+        for holding in self.holdings.select_related("asset"):
+            value = holding.current_value
+            if value is not None:
+                breakdown.append(
+                    {
+                        "asset": holding.asset.symbol,
+                        "value": value,
+                        "pct_of_portfolio": round((value / current) * 100, 2),
+                    }
+                )
+
+        return sorted(breakdown, key=lambda x: x["pct_of_portfolio"], reverse=True)
 
     def get_allocation(self) -> list[dict]:
         current = self.current_value
