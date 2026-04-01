@@ -5,7 +5,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 
 from apps.portfolio.models import Portfolio
-from apps.wallet.models import SeedPhrase, PrivateKey
+from apps.wallet.models import SeedPhrase
 
 
 # This view handles user signup. It uses Django's built-in UserCreationForm to create a new user. If the form is valid, it saves the user, logs them in, and redirects to the homepage. If the request method is GET, it simply renders the signup form.
@@ -151,31 +151,26 @@ def receive_crypto_list(request):
     )
 
 
-# This view handles the page for receiving cryptocurrency. It checks if the user has a private key and creates one if it doesn't exist. It then checks if the requested cryptocurrency is supported in the CRYPTO_REGISTRY. If it is, it generates the public address and QR code for that cryptocurrency and renders the receive page with the relevant information. If the cryptocurrency is not supported, it redirects to the list of supported cryptocurrencies.
+# This view handles the page for receiving cryptocurrency. Address generation is fully client-side from the user's local seed phrase; the backend only provides crypto metadata and the BIP39 wordlist.
 @login_required
 def receive_crypto(request, crypto: str = "bitcoin"):
-    from apps.wallet.models import CRYPTO_REGISTRY
+    import json
 
-    private_key = getattr(request.user, "private_key", None)
-    if not private_key:
-        private_key = PrivateKey.objects.create(user=request.user)
+    from apps.wallet.models import CRYPTO_REGISTRY, WORDLIST
 
     crypto = crypto.lower()
 
     if crypto not in CRYPTO_REGISTRY:
         return redirect("portfolio:receive_crypto_list")
 
-    public_address = private_key.get_public_address(crypto)
-    qr_code = private_key.get_qr_code(public_address)
     crypto_info = CRYPTO_REGISTRY[crypto]
 
     return render(
         request,
         "wallet/receive.html",
         {
-            "public_address": public_address,
-            "qr_code": qr_code,
             "crypto": crypto,
             "crypto_info": crypto_info,
+            "wordlist": json.dumps(WORDLIST),
         },
     )
