@@ -99,8 +99,8 @@ CACHES = {
 }
 
 USE_MOCK_DATA = env("USE_MOCK_DATA", default=True)
-COINGECKO_BASE_URL = env("COINGECKO_BASE_URL", default="")
-COINGECKO_API_KEY = env("COINGECKO_API_KEY", default="")
+COINGECKO_BASE_URL = env("COINGECKO_BASE_URL", default="https://api.coingecko.com/api/v3")
+COINGECKO_API_KEY = env("COINGECKO_API_KEY", default="CG-Zg73FQsCZpyFVJp8Mx2y4Zq8")
 YAHOO_FINANCE_ENABLED = env("YAHOO_FINANCE_ENABLED", default=False)
 
 CACHE_TTL_CRYPTO = env("CACHE_TTL_CRYPTO", default=300)

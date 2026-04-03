@@ -5,6 +5,7 @@ from apps.apis.services.coingecko import CoinGeckoService
 from apps.apis.exceptions import ProviderUnavailable
 
 
+@pytest.mark.L2
 class TestCoinGeckoService:
     @patch("apps.apis.services.coingecko.requests.get")
     def test_get_price_btc(self, mock_get):

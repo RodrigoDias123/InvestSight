@@ -2,6 +2,7 @@ import pytest
 from apps.apis import config
 
 
+@pytest.mark.L9
 class TestConfig:
     def test_use_mock_data_default(self):
         assert config.USE_MOCK_DATA is not None

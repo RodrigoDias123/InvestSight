@@ -4,6 +4,7 @@ from unittest.mock import patch
 from apps.apis.services.unified import UnifiedPriceService, get_price
 
 
+@pytest.mark.L4
 class TestUnifiedPriceService:
     @patch("apps.apis.services.unified.USE_MOCK_DATA", True)
     def test_get_price_uses_mock(self):

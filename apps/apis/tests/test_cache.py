@@ -4,6 +4,7 @@ from datetime import datetime
 from decimal import Decimal
 
 
+@pytest.mark.L5
 class TestCache:
     @patch("apps.apis.services.cache.cache")
     def test_get_cached_price_hit(self, mock_cache):
