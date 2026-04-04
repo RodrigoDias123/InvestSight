@@ -33,7 +33,7 @@
                 <div class="balance-section">
                     <div class="balance-display">
                         <span class="balance-label">Balance</span>
-                        <span class="balance-value" id="balanceDisplay">0.000000</span>
+                        <span class="balance-value" id="balanceDisplay">0.00</span>
                         <span class="balance-currency" id="balanceCurrency">{{ crypto_info.symbol }}</span>
                     </div>
                     <div class="fiat-display">
@@ -769,9 +769,9 @@ function loadBalance() {
     const savedBalance = localStorage.getItem(balanceKey);
     
     if (savedBalance) {
-        document.getElementById('balanceDisplay').textContent = parseFloat(savedBalance).toFixed(6);
+        document.getElementById('balanceDisplay').textContent = parseFloat(savedBalance).toFixed(2);
     } else {
-        document.getElementById('balanceDisplay').textContent = '0.000000';
+        document.getElementById('balanceDisplay').textContent = '0.00';
     }
     
     // Update fiat display
@@ -852,9 +852,9 @@ function refreshBalance() {
         const savedBalance = localStorage.getItem(balanceKey);
         
         if (savedBalance) {
-            balanceEl.textContent = parseFloat(savedBalance).toFixed(6);
+            balanceEl.textContent = parseFloat(savedBalance).toFixed(2);
         } else {
-            balanceEl.textContent = '0.000000';
+            balanceEl.textContent = '0.00';
         }
         
         // Update fiat display
