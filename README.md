@@ -104,15 +104,12 @@ investsight/
 git clone https://github.com/RodrigoDias123/InvestSight.git
 cd InvestSight
 
-# Install dependencies
-uv sync
-# or: pip install -r requirements.txt
-
 # Copy environment file
 cp .env.example .env
 
-# Apply migrations
-uv run python manage.py migrate
+# Install dependencies and apply migrations
+make install
+make migrate
 
 # Create a superuser (optional, for admin)
 uv run python manage.py createsuperuser
@@ -120,22 +117,36 @@ uv run python manage.py createsuperuser
 
 ### Running
 
-Two servers need to run simultaneously:
-
 ```bash
-# Terminal 1 — Django (frontend + admin)
-uv run python manage.py runserver 8000
-
-# Terminal 2 — FastAPI (REST API)
-uv run uvicorn api.main:app --reload --port 8001
+make start
 ```
 
-| Service        | URL                              |
-|----------------|----------------------------------|
-| Frontend       | http://localhost:8000            |
-| Django Admin   | http://localhost:8000/admin      |
-| FastAPI Swagger| http://localhost:8001/api/docs   |
-| FastAPI ReDoc  | http://localhost:8001/api/redoc  |
+This starts both servers simultaneously:
+
+| Service         | URL                            |
+|-----------------|--------------------------------|
+| Frontend        | http://localhost:8000          |
+| Django Admin    | http://localhost:8000/admin    |
+| FastAPI Swagger | http://localhost:8001/api/docs |
+| FastAPI ReDoc   | http://localhost:8001/api/redoc|
+
+To start servers individually:
+
+```bash
+make django   # Django only  (port 8000)
+make api      # FastAPI only (port 8001)
+```
+
+### All Makefile Commands
+
+| Command        | Description                              |
+|----------------|------------------------------------------|
+| `make start`   | Start Django + FastAPI in parallel       |
+| `make django`  | Start Django server only                 |
+| `make api`     | Start FastAPI server only                |
+| `make install` | Install all dependencies (`uv sync`)     |
+| `make migrate` | Apply database migrations                |
+| `make test`    | Run the full test suite                  |
 
 ---
 
@@ -253,13 +264,12 @@ Idempotent — if today's snapshot already exists, it updates the value.
 ## Testing
 
 ```bash
-# Run all tests
-uv run pytest
+make test
 
-# Run with coverage report
+# With coverage report
 uv run pytest --cov=apps --cov=services --cov=repositories --cov-report=term-missing
 
-# Run per domain
+# Per domain
 uv run pytest apps/apis/tests/
 uv run pytest apps/portfolio/tests/
 uv run pytest apps/wallet/tests/
@@ -267,23 +277,13 @@ uv run pytest apps/wallet/tests/
 
 ### Test Summary
 
-| Domain      | Tests | Status  | Notes                                      |
-|-------------|-------|---------|--------------------------------------------|
-| `apps/apis` | 20    | 13 ✅ 7 ❌ | Cache, retry, unified, yahoo have failures |
-| `apps/portfolio` | 55 | 55 ✅  | All passing                               |
-| `apps/wallet`    | 18 | 18 ✅  | All passing                               |
-| **Total**   | **95**| **86 ✅ 7 ❌** |                                      |
-
-#### Known failing tests (`apps/apis`)
-
-| Test | Reason |
-|------|--------|
-| `test_cache.py` — 2 tests | Cache key/TTL mismatch with current implementation |
-| `test_retry.py` — 1 test  | `AttributeError` in retry decorator mock           |
-| `test_unified.py` — 2 tests | Mock mode flag not being picked up in test env   |
-| `test_yahoo.py` — 2 tests   | `yfinance` response schema changed                |
-
-> `apps/apis/tests/test_config.py` has a **collection error** and is excluded from the default run.
+| Domain               | Tests  | Status   |
+|----------------------|--------|----------|
+| `apps/apis`          | 23     | 23 ✅    |
+| `apps/portfolio`     | 55     | 55 ✅    |
+| `apps/wallet`        | 18     | 18 ✅    |
+| `tests/integration`  | 2      | 2 ✅     |
+| **Total**            | **98** | **98 ✅**|
 
 ---
 
