@@ -16,9 +16,6 @@ wheels/
 staticfiles/
 media/
 
-# Price data cache (auto-generated at runtime)
-apps/apis/data/prices.json
-
 # IDE
 .idea/
 .vscode/

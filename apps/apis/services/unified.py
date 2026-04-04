@@ -81,6 +81,21 @@ class UnifiedPriceService:
             logger.error("fx_conversion_exception", error=str(e))
             return amount
 
+    def get_all_currency(self):
+        try:
+            url = "https://api.frankfurter.app/currencies"
+            response = requests.get(url, timeout=5)
+
+            if response.status_code != 200:
+                logger.error("fx_currencies_api_error", status=response.status_code)
+                return {}
+
+            return response.json()
+
+        except Exception as e:
+            logger.error("fx_currencies_exception", error=str(e))
+            return {}
+
 
     @with_retry
     def get_price(self, symbol: str, target_currency: str = "USD") -> Optional[PriceResult]:

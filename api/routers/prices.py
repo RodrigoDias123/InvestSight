@@ -42,6 +42,8 @@ async def get_price_route(symbol: str, target_currency: str = "USD"):
         timestamp=result.timestamp,
     )
 
+@router.
+
 # Get all Prices, supports multi-currency
 @router.get("/", response_model=PriceListResponse)
 async def get_all_prices_route(target_currency: str = "USD"):
