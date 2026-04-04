@@ -46,6 +46,7 @@
                             <option value="JPY">JPY (¥)</option>
                         </select>
                     </div>
+                    <div class="fiat-meta" id="fiatMeta">Live price status: checking...</div>
                     <button onclick="refreshBalance()" class="btn-refresh">↻ Refresh</button>
                 </div>
                 
@@ -311,6 +312,11 @@
     color: #4ade80;
     font-size: 20px;
     font-weight: bold;
+}
+.fiat-meta {
+    color: #aaa;
+    font-size: 12px;
+    margin-top: 8px;
 }
 #currencySelect {
     background: rgba(255,255,255,0.1);
@@ -607,25 +613,13 @@ const CURRENCY_SYMBOLS = {
     JPY: '¥'
 };
 
-// Simulated prices (in USD) - would be fetched from API in production
-const CRYPTO_PRICES_USD = {
-    bitcoin: 67500,
-    ethereum: 3450,
-    litecoin: 85,
-    dogecoin: 0.16,
-    ripple: 0.62,
-    solana: 185,
-    cardano: 0.65,
-    avalanche: 38,
-    chainlink: 18,
-    polygon: 0.85,
-    uniswap: 12
-};
+const PRICE_ENDPOINT_TEMPLATE = '{% url "portfolio:wallet_live_price" "__SYMBOL__" %}';
 
 // Security state
 let countdownTimer = null;
 let seedCountdownTimer = null;
 let pendingAction = null; // 'view' or 'backup'
+let fiatPollingTimer = null;
 
 // Generate seed phrase
 function generateSeedPhrase() {
@@ -735,9 +729,19 @@ function loadWallet() {
         document.getElementById('setupSection').style.display = 'none';
         document.getElementById('walletSection').style.display = 'block';
         displayAddress();
+        if (fiatPollingTimer !== null) {
+            clearInterval(fiatPollingTimer);
+        }
+        fiatPollingTimer = setInterval(() => {
+            updateFiatDisplay();
+        }, 30000);
     } else {
         document.getElementById('setupSection').style.display = 'block';
         document.getElementById('walletSection').style.display = 'none';
+        if (fiatPollingTimer !== null) {
+            clearInterval(fiatPollingTimer);
+            fiatPollingTimer = null;
+        }
     }
 }
 
@@ -774,27 +778,62 @@ function loadBalance() {
     updateFiatDisplay();
 }
 
-function updateFiatDisplay() {
+async function fetchLiveUnitPrice(symbol, currency) {
+    const endpoint = PRICE_ENDPOINT_TEMPLATE.replace('__SYMBOL__', encodeURIComponent(symbol));
+    const url = `${endpoint}?target_currency=${encodeURIComponent(currency)}`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        if (!response.ok) {
+            return null;
+        }
+
+        const payload = await response.json();
+        if (!payload || payload.status !== 'ok') {
+            return null;
+        }
+
+        const parsedPrice = Number(payload.price);
+        if (!Number.isFinite(parsedPrice)) {
+            return null;
+        }
+
+        return {
+            unitPrice: parsedPrice,
+            provider: payload.provider,
+            timestamp: payload.timestamp,
+            currency: payload.currency
+        };
+    } catch (_) {
+        return null;
+    }
+}
+
+async function updateFiatDisplay() {
     const cryptoBalance = parseFloat(document.getElementById('balanceDisplay').textContent);
     const currency = document.getElementById('currencySelect').value;
     const symbol = CURRENCY_SYMBOLS[currency];
-    
-    // Get crypto price in USD
     const config = CRYPTO_CONFIG[currentCrypto] || CRYPTO_CONFIG.bitcoin;
-    const priceUSD = CRYPTO_PRICES_USD[config.coingecko] || 0;
-    
-    // Convert to selected currency (using simulated exchange rates)
-    const exchangeRates = {
-        EUR: 0.92,
-        USD: 1.0,
-        GBP: 0.79,
-        BRL: 5.05,
-        JPY: 155
-    };
-    const rate = exchangeRates[currency] || 1;
-    
-    const fiatValue = cryptoBalance * priceUSD * rate;
+
+    const liveQuote = await fetchLiveUnitPrice(config.symbol, currency);
+
+    if (liveQuote === null) {
+        document.getElementById('fiatDisplay').textContent = `${symbol} --`;
+        document.getElementById('fiatMeta').textContent = 'Live price unavailable. Check API connectivity.';
+        return;
+    }
+
+    const fiatValue = cryptoBalance * liveQuote.unitPrice;
     document.getElementById('fiatDisplay').textContent = `${symbol} ${fiatValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+    const seenAt = new Date(liveQuote.timestamp);
+    document.getElementById('fiatMeta').textContent = `Live via ${liveQuote.provider} at ${seenAt.toLocaleTimeString()}`;
 }
 
 function refreshBalance() {

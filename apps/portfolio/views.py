@@ -5,11 +5,13 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_protect
+from datetime import datetime, timedelta
 from decimal import Decimal, InvalidOperation
 import json
 
 from apps.portfolio.models import Portfolio
 from apps.wallet.models import SeedPhrase, WalletTransaction, WalletTransactionType
+from apps.apis.services.unified import get_price as get_live_price
 
 
 # This view handles user signup. It uses Django's built-in UserCreationForm to create a new user. If the form is valid, it saves the user, logs them in, and redirects to the homepage. If the request method is GET, it simply renders the signup form.
@@ -202,6 +204,44 @@ def wallet_transaction_log(request):
     )
 
     return JsonResponse({"status": "ok", "id": tx.id})
+
+
+@login_required
+def wallet_live_price(request, symbol: str):
+    target_currency = request.GET.get("target_currency", "USD").upper()
+    if len(target_currency) != 3 or not target_currency.isalpha():
+        return JsonResponse(
+            {"status": "error", "message": "Invalid target currency"}, status=400
+        )
+
+    result = get_live_price(symbol.upper(), target_currency=target_currency)
+    if result is None:
+        return JsonResponse(
+            {"status": "error", "message": "Price not found"}, status=404
+        )
+
+    if result.timestamp < datetime.utcnow() - timedelta(minutes=15):
+        return JsonResponse(
+            {
+                "status": "error",
+                "message": "Live quote is stale",
+                "symbol": result.symbol,
+                "provider": result.provider,
+                "timestamp": result.timestamp.isoformat(),
+            },
+            status=503,
+        )
+
+    return JsonResponse(
+        {
+            "status": "ok",
+            "symbol": result.symbol,
+            "price": str(result.price),
+            "currency": result.currency,
+            "provider": result.provider,
+            "timestamp": result.timestamp.isoformat(),
+        }
+    )
 
 
 # This view displays a list of supported cryptocurrencies for receiving funds. It retrieves the cryptocurrency information from the CRYPTO_REGISTRY and renders a template that lists all available cryptocurrencies along with their metadata, such as name, symbol, and icon.

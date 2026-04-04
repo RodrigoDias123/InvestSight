@@ -16,6 +16,9 @@ urlpatterns = [
     path(
         "wallet/transactions/log/", views.wallet_transaction_log, name="wallet_tx_log"
     ),
+    path(
+        "wallet/prices/<str:symbol>/", views.wallet_live_price, name="wallet_live_price"
+    ),
     path("", views.index, name="index"),
     path("<int:portfolio_id>/", views.detail, name="detail"),
 ]
