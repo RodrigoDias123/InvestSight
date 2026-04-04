@@ -66,410 +66,410 @@
     "prices": {
         "BTC": {
             "symbol": "BTC",
-            "price": "66881",
+            "price": "67338",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530249"
+            "timestamp": "2026-04-04T18:00:06.567564"
         },
         "ETH": {
             "symbol": "ETH",
-            "price": "2053.22",
+            "price": "2056.77",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530264"
+            "timestamp": "2026-04-04T18:00:06.567574"
         },
         "USDT": {
             "symbol": "USDT",
-            "price": "0.99982",
+            "price": "0.99992",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530270"
+            "timestamp": "2026-04-04T18:00:06.567578"
         },
         "USDC": {
             "symbol": "USDC",
-            "price": "0.999842",
+            "price": "1.0",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530273"
+            "timestamp": "2026-04-04T18:00:06.567580"
         },
         "BNB": {
             "symbol": "BNB",
-            "price": "588.78",
+            "price": "592.67",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530276"
+            "timestamp": "2026-04-04T18:00:06.567582"
         },
         "XRP": {
             "symbol": "XRP",
-            "price": "1.32",
+            "price": "1.31",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530279"
+            "timestamp": "2026-04-04T18:00:06.567584"
         },
         "ADA": {
             "symbol": "ADA",
-            "price": "0.24774",
+            "price": "0.247396",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530281"
+            "timestamp": "2026-04-04T18:00:06.567586"
         },
         "DOGE": {
             "symbol": "DOGE",
-            "price": "0.091908",
+            "price": "0.092242",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530284"
+            "timestamp": "2026-04-04T18:00:06.567588"
         },
         "SOL": {
             "symbol": "SOL",
-            "price": "80.25",
+            "price": "80.93",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530286"
+            "timestamp": "2026-04-04T18:00:06.567589"
         },
         "DOT": {
             "symbol": "DOT",
-            "price": "1.25",
+            "price": "1.26",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530289"
+            "timestamp": "2026-04-04T18:00:06.567591"
         },
         "TRX": {
             "symbol": "TRX",
-            "price": "0.314502",
+            "price": "0.317153",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530291"
+            "timestamp": "2026-04-04T18:00:06.567592"
         },
         "LTC": {
             "symbol": "LTC",
-            "price": "53.21",
+            "price": "53.67",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530294"
+            "timestamp": "2026-04-04T18:00:06.567594"
         },
         "BCH": {
             "symbol": "BCH",
-            "price": "442.38",
+            "price": "442.12",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530296"
+            "timestamp": "2026-04-04T18:00:06.567595"
         },
         "LINK": {
             "symbol": "LINK",
             "price": "8.69",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530299"
+            "timestamp": "2026-04-04T18:00:06.567596"
         },
         "XLM": {
             "symbol": "XLM",
-            "price": "0.163662",
+            "price": "0.161387",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530301"
+            "timestamp": "2026-04-04T18:00:06.567597"
         },
         "ATOM": {
             "symbol": "ATOM",
-            "price": "1.7",
+            "price": "1.71",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530303"
+            "timestamp": "2026-04-04T18:00:06.567599"
         },
         "ETC": {
             "symbol": "ETC",
-            "price": "8.16",
+            "price": "8.72",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530305"
+            "timestamp": "2026-04-04T18:00:06.567600"
         },
         "XMR": {
             "symbol": "XMR",
-            "price": "318.37",
+            "price": "319.75",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530307"
+            "timestamp": "2026-04-04T18:00:06.567609"
         },
         "ALGO": {
             "symbol": "ALGO",
-            "price": "0.121359",
+            "price": "0.119328",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530310"
+            "timestamp": "2026-04-04T18:00:06.567611"
         },
         "ICP": {
             "symbol": "ICP",
-            "price": "2.29",
+            "price": "2.3",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530317"
+            "timestamp": "2026-04-04T18:00:06.567612"
         },
         "FIL": {
             "symbol": "FIL",
-            "price": "0.838713",
+            "price": "0.848107",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530320"
+            "timestamp": "2026-04-04T18:00:06.567614"
         },
         "APT": {
             "symbol": "APT",
-            "price": "0.850948",
+            "price": "0.85054",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530322"
+            "timestamp": "2026-04-04T18:00:06.567615"
         },
         "ARB": {
             "symbol": "ARB",
-            "price": "0.092798",
+            "price": "0.093118",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530324"
+            "timestamp": "2026-04-04T18:00:06.567616"
         },
         "OP": {
             "symbol": "OP",
-            "price": "0.110757",
+            "price": "0.110273",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530327"
+            "timestamp": "2026-04-04T18:00:06.567617"
         },
         "AVAX": {
             "symbol": "AVAX",
-            "price": "8.97",
+            "price": "9.04",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530329"
+            "timestamp": "2026-04-04T18:00:06.567619"
         },
         "NEAR": {
             "symbol": "NEAR",
-            "price": "1.21",
+            "price": "1.28",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530331"
+            "timestamp": "2026-04-04T18:00:06.567620"
         },
         "HBAR": {
             "symbol": "HBAR",
-            "price": "0.087702",
+            "price": "0.087399",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530333"
+            "timestamp": "2026-04-04T18:00:06.567622"
         },
         "VET": {
             "symbol": "VET",
-            "price": "0.00699589",
+            "price": "0.00748801",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530336"
+            "timestamp": "2026-04-04T18:00:06.567623"
         },
         "AAVE": {
             "symbol": "AAVE",
-            "price": "94.49",
+            "price": "94.73",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530338"
+            "timestamp": "2026-04-04T18:00:06.567635"
         },
         "SAND": {
             "symbol": "SAND",
-            "price": "0.07727",
+            "price": "0.077352",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530340"
+            "timestamp": "2026-04-04T18:00:06.567637"
         },
         "MANA": {
             "symbol": "MANA",
-            "price": "0.087578",
+            "price": "0.088291",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530342"
+            "timestamp": "2026-04-04T18:00:06.567639"
         },
         "EGLD": {
             "symbol": "EGLD",
-            "price": "3.77",
+            "price": "3.76",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530344"
+            "timestamp": "2026-04-04T18:00:06.567640"
         },
         "XTZ": {
             "symbol": "XTZ",
-            "price": "0.35135",
+            "price": "0.348108",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530347"
+            "timestamp": "2026-04-04T18:00:06.567642"
         },
         "FTM": {
             "symbol": "FTM",
-            "price": "0.04568167",
+            "price": "0.04580264",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530349"
+            "timestamp": "2026-04-04T18:00:06.567643"
         },
         "GRT": {
             "symbol": "GRT",
-            "price": "0.02396505",
+            "price": "0.02422713",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530351"
+            "timestamp": "2026-04-04T18:00:06.567645"
         },
         "RUNE": {
             "symbol": "RUNE",
-            "price": "0.398188",
+            "price": "0.381238",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530353"
+            "timestamp": "2026-04-04T18:00:06.567647"
         },
         "KSM": {
             "symbol": "KSM",
-            "price": "4.21",
+            "price": "4.17",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530356"
+            "timestamp": "2026-04-04T18:00:06.567649"
         },
         "CAKE": {
             "symbol": "CAKE",
-            "price": "1.35",
+            "price": "1.41",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530358"
+            "timestamp": "2026-04-04T18:00:06.567651"
         },
         "QNT": {
             "symbol": "QNT",
-            "price": "77.21",
+            "price": "73.13",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530360"
+            "timestamp": "2026-04-04T18:00:06.567652"
         },
         "FLOW": {
             "symbol": "FLOW",
-            "price": "0.02996663",
+            "price": "0.03227823",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530362"
+            "timestamp": "2026-04-04T18:00:06.567654"
         },
         "CHZ": {
             "symbol": "CHZ",
-            "price": "0.03959711",
+            "price": "0.03903338",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530364"
+            "timestamp": "2026-04-04T18:00:06.567655"
         },
         "CRV": {
             "symbol": "CRV",
-            "price": "0.211397",
+            "price": "0.213462",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530367"
+            "timestamp": "2026-04-04T18:00:06.567657"
         },
         "DYDX": {
             "symbol": "DYDX",
-            "price": "0.101427",
+            "price": "0.102193",
             "currency": "USD",
             "provider": "coingecko",
-            "timestamp": "2026-04-03T20:21:45.530369"
+            "timestamp": "2026-04-04T18:00:06.567669"
         },
         "AAPL": {
             "symbol": "AAPL",
             "price": "255.92",
             "currency": "USD",
             "provider": "yahoo",
-            "timestamp": "2026-04-03T20:21:46.410362"
+            "timestamp": "2026-04-04T18:00:07.413226"
         },
         "TSLA": {
             "symbol": "TSLA",
             "price": "360.59",
             "currency": "USD",
             "provider": "yahoo",
-            "timestamp": "2026-04-03T20:21:46.830005"
+            "timestamp": "2026-04-04T18:00:07.823261"
         },
         "MSFT": {
             "symbol": "MSFT",
             "price": "373.46",
             "currency": "USD",
             "provider": "yahoo",
-            "timestamp": "2026-04-03T20:21:47.251864"
+            "timestamp": "2026-04-04T18:00:08.461363"
         },
         "AMZN": {
             "symbol": "AMZN",
             "price": "209.77",
             "currency": "USD",
             "provider": "yahoo",
-            "timestamp": "2026-04-03T20:21:47.683486"
+            "timestamp": "2026-04-04T18:00:08.987701"
         },
         "NVDA": {
             "symbol": "NVDA",
             "price": "177.39",
             "currency": "USD",
             "provider": "yahoo",
-            "timestamp": "2026-04-03T20:21:48.144192"
+            "timestamp": "2026-04-04T18:00:09.512381"
         },
         "META": {
             "symbol": "META",
             "price": "574.46",
             "currency": "USD",
             "provider": "yahoo",
-            "timestamp": "2026-04-03T20:21:48.645097"
+            "timestamp": "2026-04-04T18:00:09.927975"
         },
         "GOOGL": {
             "symbol": "GOOGL",
             "price": "295.77",
             "currency": "USD",
             "provider": "yahoo",
-            "timestamp": "2026-04-03T20:21:49.173673"
+            "timestamp": "2026-04-04T18:00:10.351119"
         },
         "NFLX": {
             "symbol": "NFLX",
             "price": "98.66",
             "currency": "USD",
             "provider": "yahoo",
-            "timestamp": "2026-04-03T20:21:49.668457"
+            "timestamp": "2026-04-04T18:00:10.820148"
         },
         "JPM": {
             "symbol": "JPM",
             "price": "294.6",
             "currency": "USD",
             "provider": "yahoo",
-            "timestamp": "2026-04-03T20:21:50.172411"
+            "timestamp": "2026-04-04T18:00:11.332370"
         },
         "V": {
             "symbol": "V",
             "price": "300.8",
             "currency": "USD",
             "provider": "yahoo",
-            "timestamp": "2026-04-03T20:21:50.714869"
+            "timestamp": "2026-04-04T18:00:11.771863"
         },
         "MA": {
             "symbol": "MA",
             "price": "493.44",
             "currency": "USD",
             "provider": "yahoo",
-            "timestamp": "2026-04-03T20:21:51.252751"
+            "timestamp": "2026-04-04T18:00:12.196430"
         },
         "BAC": {
             "symbol": "BAC",
             "price": "49.38",
             "currency": "USD",
             "provider": "yahoo",
-            "timestamp": "2026-04-03T20:21:51.795624"
+            "timestamp": "2026-04-04T18:00:12.681416"
         },
         "KO": {
             "symbol": "KO",
             "price": "76.72",
             "currency": "USD",
             "provider": "yahoo",
-            "timestamp": "2026-04-03T20:21:52.361328"
+            "timestamp": "2026-04-04T18:00:13.181759"
         },
         "PEP": {
             "symbol": "PEP",
             "price": "157.01",
             "currency": "USD",
             "provider": "yahoo",
-            "timestamp": "2026-04-03T20:21:52.879224"
+            "timestamp": "2026-04-04T18:00:13.608971"
         },
         "DIS": {
             "symbol": "DIS",
             "price": "96.61",
             "currency": "USD",
             "provider": "yahoo",
-            "timestamp": "2026-04-03T20:21:53.407410"
+            "timestamp": "2026-04-04T18:00:14.033255"
         }
     },
-    "timestamp": "2026-04-03T20:21:53.413319"
+    "timestamp": "2026-04-04T18:00:14.035110"
 }
