@@ -10,7 +10,13 @@ from decimal import Decimal, InvalidOperation
 import json
 
 from apps.portfolio.models import Portfolio
-from apps.wallet.models import Asset, Holding, SeedPhrase, WalletTransaction, WalletTransactionType
+from apps.wallet.models import (
+    Asset,
+    Holding,
+    SeedPhrase,
+    WalletTransaction,
+    WalletTransactionType,
+)
 from apps.apis.services.unified import get_price as get_live_price
 
 
@@ -32,6 +38,9 @@ def signup(request):
 @login_required
 def index(request):
     portfolios = Portfolio.objects.filter(user=request.user)
+    if not portfolios.exists():
+        Portfolio.objects.create(name="My Portfolio", user=request.user)
+        portfolios = Portfolio.objects.filter(user=request.user)
     return render(request, "portfolio/dashboard.html", {"portfolios": portfolios})
 
 
@@ -43,11 +52,13 @@ def detail(request, portfolio_id):
     assets = Asset.objects.all().order_by("symbol")
 
     from apps.apis.settings import settings as api_settings
+
     registry = api_settings.PROVIDER_REGISTRY
     crypto_symbols = sorted(s for s, p in registry.items() if p == "coingecko")
     stock_symbols = sorted(s for s, p in registry.items() if p == "yahoo")
 
     from decimal import Decimal
+
     crypto_value = Decimal("0")
     stock_value = Decimal("0")
     for h in holdings:
@@ -105,13 +116,17 @@ def add_holding(request, portfolio_id):
         holdings = portfolio.holdings.select_related("asset")
         allocation = portfolio.get_allocation()
         assets = Asset.objects.all().order_by("symbol")
-        return render(request, "portfolio/detail.html", {
-            "portfolio": portfolio,
-            "holdings": holdings,
-            "allocation": allocation,
-            "assets": assets,
-            "errors": errors,
-        })
+        return render(
+            request,
+            "portfolio/detail.html",
+            {
+                "portfolio": portfolio,
+                "holdings": holdings,
+                "allocation": allocation,
+                "assets": assets,
+                "errors": errors,
+            },
+        )
 
     asset, _ = Asset.objects.get_or_create(
         symbol=symbol,
