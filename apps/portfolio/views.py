@@ -17,7 +17,10 @@ from apps.wallet.models import (
     WalletTransaction,
     WalletTransactionType,
 )
-from apps.apis.services.unified import get_price as get_live_price
+from apps.apis.services.unified import (
+    get_price as get_live_price,
+    unified_price_service,
+)
 
 
 # This view handles user signup. It uses Django's built-in UserCreationForm to create a new user. If the form is valid, it saves the user, logs them in, and redirects to the homepage. If the request method is GET, it simply renders the signup form.
@@ -356,6 +359,90 @@ def receive_crypto(request, crypto: str = "bitcoin"):
 
     crypto_info = CRYPTO_REGISTRY[crypto]
 
+    currency_symbols = {
+        "EUR": "€",
+        "USD": "$",
+        "GBP": "£",
+        "BRL": "R$",
+        "JPY": "¥",
+        "CAD": "C$",
+        "AUD": "A$",
+        "NZD": "NZ$",
+        "CHF": "CHF",
+        "CNY": "¥",
+        "INR": "₹",
+        "MXN": "MX$",
+        "SGD": "S$",
+        "HKD": "HK$",
+        "SEK": "kr",
+        "NOK": "kr",
+        "DKK": "kr",
+        "PLN": "zł",
+        "TRY": "₺",
+        "ZAR": "R",
+        "AED": "AED",
+    }
+    preferred_currency_order = [
+        "EUR",
+        "USD",
+        "GBP",
+        "BRL",
+        "JPY",
+        "CAD",
+        "AUD",
+        "CHF",
+        "CNY",
+        "INR",
+        "MXN",
+        "SGD",
+        "HKD",
+        "NOK",
+        "SEK",
+        "DKK",
+        "PLN",
+        "TRY",
+        "ZAR",
+        "AED",
+    ]
+
+    available_currencies = unified_price_service.get_all_currency()
+    receive_currencies = []
+
+    for code in preferred_currency_order:
+        if not available_currencies or code in available_currencies:
+            receive_currencies.append(
+                {
+                    "code": code,
+                    "symbol": currency_symbols.get(code, code),
+                    "name": available_currencies.get(code, code),
+                }
+            )
+
+    if available_currencies:
+        missing_codes = sorted(
+            code
+            for code in available_currencies.keys()
+            if code not in preferred_currency_order
+        )
+        for code in missing_codes:
+            receive_currencies.append(
+                {
+                    "code": code,
+                    "symbol": currency_symbols.get(code, code),
+                    "name": available_currencies.get(code, code),
+                }
+            )
+
+    if not receive_currencies:
+        receive_currencies = [
+            {
+                "code": code,
+                "symbol": currency_symbols.get(code, code),
+                "name": code,
+            }
+            for code in preferred_currency_order
+        ]
+
     return render(
         request,
         "wallet/receive.html",
@@ -363,5 +450,10 @@ def receive_crypto(request, crypto: str = "bitcoin"):
             "crypto": crypto,
             "crypto_info": crypto_info,
             "wordlist": json.dumps(WORDLIST),
+            "receive_currencies": receive_currencies,
+            "default_currency": "EUR",
+            "currency_symbols": json.dumps(
+                {item["code"]: item["symbol"] for item in receive_currencies}
+            ),
         },
     )

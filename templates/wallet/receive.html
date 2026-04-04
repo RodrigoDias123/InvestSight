@@ -39,11 +39,9 @@
                     <div class="fiat-display">
                         <span class="fiat-value" id="fiatDisplay">€ 0.00</span>
                         <select id="currencySelect" onchange="updateFiatDisplay()">
-                            <option value="EUR">EUR (€)</option>
-                            <option value="USD">USD ($)</option>
-                            <option value="GBP">GBP (£)</option>
-                            <option value="BRL">BRL (R$)</option>
-                            <option value="JPY">JPY (¥)</option>
+                            {% for currency in receive_currencies %}
+                            <option value="{{ currency.code }}" {% if currency.code == default_currency %}selected{% endif %}>{{ currency.code }} ({{ currency.symbol }})</option>
+                            {% endfor %}
                         </select>
                     </div>
                     <div class="fiat-meta" id="fiatMeta">Live price status: checking...</div>
@@ -605,13 +603,7 @@ const CRYPTO_CONFIG = {
 };
 
 // Currency symbols
-const CURRENCY_SYMBOLS = {
-    EUR: '€',
-    USD: '$',
-    GBP: '£',
-    BRL: 'R$',
-    JPY: '¥'
-};
+const CURRENCY_SYMBOLS = {{ currency_symbols|safe }};
 
 const PRICE_ENDPOINT_TEMPLATE = '{% url "portfolio:wallet_live_price" "__SYMBOL__" %}';
 
@@ -818,7 +810,7 @@ async function fetchLiveUnitPrice(symbol, currency) {
 async function updateFiatDisplay() {
     const cryptoBalance = parseFloat(document.getElementById('balanceDisplay').textContent);
     const currency = document.getElementById('currencySelect').value;
-    const symbol = CURRENCY_SYMBOLS[currency];
+    const symbol = CURRENCY_SYMBOLS[currency] || currency;
     const config = CRYPTO_CONFIG[currentCrypto] || CRYPTO_CONFIG.bitcoin;
 
     const liveQuote = await fetchLiveUnitPrice(config.symbol, currency);
